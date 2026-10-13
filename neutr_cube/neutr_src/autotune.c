@@ -120,7 +120,7 @@ void ft_delay(uint32_t time_ms)
 		nexttime = 2;
 	while(ft_time < nexttime)
 	{
-		;
+		usbmidi_poll(); //keep USB alive during long waits (autotune)
 	}
 }
 

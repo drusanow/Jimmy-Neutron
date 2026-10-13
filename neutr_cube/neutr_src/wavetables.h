@@ -13,7 +13,7 @@
 #define WT_LEVELS 7
 //level k has 1<<wavetable_level_bits[k] samples, plus one extra, so interpolation needs no wrap
 #ifndef WT_WAVE_SIZE
-#define WT_WAVE_SIZE 2567
+#define WT_WAVE_SIZE 2119
 #endif
 
 //level k is for fundamentals up to 156.25 Hz * 2^k. phase increment @48 kHz of 156.25 Hz:

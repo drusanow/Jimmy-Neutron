@@ -157,6 +157,11 @@ Modes 3 and 7 (oscillators), hold LFO_SYNC and press...
 - PARAPHONIC to follow OSC1 pitch instead of OSC2 (led lit = OSC1)
 - FLT_KEYTRACK to snap LFO_RATE pitch offset to semitones (led lit = on)
 
+USB MIDI
+The Neutron is a class compliant USB MIDI device. USB MIDI plays the synth like DIN MIDI,
+on the channel selected with the back panel switches. DIN MIDI IN is also sent to USB.
+SysEx (Behringer SynthTool / app) is not supported.
+
 BOOTLOADER
 Hold OSC_SYNC + FILTER_MODE while powering on: all leds light up and the Neutron enters the
 STM32 USB DFU bootloader. Flash any firmware, or power cycle to leave.

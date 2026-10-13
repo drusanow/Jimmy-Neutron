@@ -16,6 +16,7 @@ SIZE     = $(PREFIX)size
 PYTHON  ?= python3
 
 HAL_SRC  = Drivers/STM32F0xx_HAL_Driver/Src
+TUSB     = Middlewares/tinyusb/src
 C_SRCS   = $(wildcard neutr_src/*.c) $(wildcard Core/Src/*.c) \
            $(HAL_SRC)/stm32f0xx_hal.c \
            $(HAL_SRC)/stm32f0xx_hal_adc.c \
@@ -40,7 +41,13 @@ C_SRCS   = $(wildcard neutr_src/*.c) $(wildcard Core/Src/*.c) \
            $(HAL_SRC)/stm32f0xx_hal_tim.c \
            $(HAL_SRC)/stm32f0xx_hal_tim_ex.c \
            $(HAL_SRC)/stm32f0xx_hal_uart.c \
-           $(HAL_SRC)/stm32f0xx_hal_uart_ex.c
+           $(HAL_SRC)/stm32f0xx_hal_uart_ex.c \
+           $(TUSB)/tusb.c \
+           $(TUSB)/common/tusb_fifo.c \
+           $(TUSB)/device/usbd.c \
+           $(TUSB)/device/usbd_control.c \
+           $(TUSB)/class/midi/midi_device.c \
+           $(TUSB)/portable/st/stm32_fsdev/dcd_stm32_fsdev.c
 S_SRCS   = startup/startup_stm32f072xb.s
 
 INCLUDES = -ICore/Inc \
@@ -48,12 +55,14 @@ INCLUDES = -ICore/Inc \
            -IDrivers/STM32F0xx_HAL_Driver/Inc/Legacy \
            -IDrivers/CMSIS/Device/ST/STM32F0xx/Include \
            -IDrivers/CMSIS/Include \
-           -Ineutr_src
+           -Ineutr_src \
+           -I$(TUSB)
 
 MCU      = -mcpu=cortex-m0 -mthumb -mfloat-abi=soft
 DEFS     = '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' \
            -DUSE_HAL_DRIVER -DSTM32F072xB
-CFLAGS   = $(MCU) $(DEFS) $(INCLUDES) -O3 -Wall -Wextra -fmessage-length=0 -ffunction-sections -MMD -MP
+OPT      = -O3
+CFLAGS   = $(MCU) $(DEFS) $(INCLUDES) $(OPT) -Wall -Wextra -fmessage-length=0 -ffunction-sections -MMD -MP
 LDSCRIPT = STM32F072CBTx_FLASH.ld
 LDFLAGS  = $(MCU) -specs=nosys.specs -specs=nano.specs -T$(LDSCRIPT) \
            -Wl,-Map=$(BUILD)/$(TARGET).map -Wl,--gc-sections
@@ -62,6 +71,9 @@ OBJS     = $(addprefix $(BUILD)/,$(C_SRCS:.c=.o) $(S_SRCS:.s=.o))
 
 all: $(BUILD)/$(TARGET).elf $(BUILD)/$(TARGET).hex $(BUILD)/$(TARGET).bin $(BUILD)/$(TARGET).dfu
 	$(SIZE) $(BUILD)/$(TARGET).elf
+
+#USB stack is not time critical, optimise it for size
+$(BUILD)/Middlewares/%.o: OPT = -Os
 
 $(BUILD)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -107,7 +119,12 @@ $(BUILD)/test/test_wavetable: tests/test_wavetable.c neutr_src/neutr_lfo_6waveta
 	@mkdir -p $(dir $@)
 	$(HOSTCC) $(TEST_FLAGS) -o $@ $^
 
-test: $(BUILD)/test/test_osc_shape $(BUILD)/test/test_lfo_osc_pitch $(BUILD)/test/test_wavetable
+$(BUILD)/test/test_usb_midi: tests/test_usb_midi.c neutr_src/usb_midi.c
+	@mkdir -p $(dir $@)
+	$(HOSTCC) $(TEST_FLAGS) -I$(TUSB) -o $@ $^
+
+test: $(BUILD)/test/test_osc_shape $(BUILD)/test/test_lfo_osc_pitch $(BUILD)/test/test_wavetable $(BUILD)/test/test_usb_midi
+	$(BUILD)/test/test_usb_midi
 	$(BUILD)/test/test_osc_shape
 	$(BUILD)/test/test_lfo_osc_pitch
 	$(BUILD)/test/test_wavetable $(BUILD)/test/wavetable.raw

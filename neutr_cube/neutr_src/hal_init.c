@@ -299,12 +299,15 @@ void neutr_main(void)
 		ft_delay(100);
 		bootloader_request();
 	}
+
+	usbmidi_init(); //after the bootloader check, so the host does not see a midi device first
 	//exticalib();
 	//ft_delay(100);
 	msp_root();
 
 	while(1)
 	{
+		usbmidi_task();
 		eventscheck();
 
 		if (neutron_lfo->asyncmain)

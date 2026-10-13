@@ -1,0 +1,2 @@
+TinyUSB 0.17.0 (https://github.com/hathach/tinyusb, commit 5217cee), MIT license.
+Only the parts needed for a USB MIDI device on STM32F0 are kept. Unmodified.

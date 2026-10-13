@@ -306,6 +306,12 @@ void pp_octaveo1(uint8_t octave);
 void pp_octaveo2(uint8_t octave);
 void pp_setdac(uint8_t mode);
 
+//usb midi
+void usbmidi_init(void);
+void usbmidi_irq(void);
+void usbmidi_poll(void);
+void usbmidi_task(void);
+void usbmidi_din_byte(uint8_t b);
 //bootloader
 void bootloader_check(void);
 void bootloader_request(void);

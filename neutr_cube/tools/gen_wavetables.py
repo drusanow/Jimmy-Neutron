@@ -16,8 +16,9 @@ import math
 import os
 import sys
 
-# measured with tests/analyse_wavetable.py: worst aliasing about -49 dB, 41 kB of flash
-TABLE_LENS = [int(x) for x in os.environ.get('WT_LENS', '512,512,512,256,256,256,256').split(',')]
+# measured with tests/analyse_wavetable.py: worst aliasing about -49 dB, 34 kB of flash
+# (the top levels hold few harmonics, so short tables are enough there)
+TABLE_LENS = [int(x) for x in os.environ.get('WT_LENS', '512,512,512,256,128,128,64').split(',')]
 LEVELS = len(TABLE_LENS)
 BASE_F0 = 156.25          # top fundamental of level 0, Hz
 NYQ_LIMIT = float(os.environ.get('WT_NYQ', 20000))       # highest harmonic frequency allowed, Hz

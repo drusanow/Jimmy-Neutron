@@ -35,6 +35,8 @@
 #include "stm32f0xx.h"
 #include "stm32f0xx_it.h"
 
+void usbmidi_irq(void);
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -132,7 +134,7 @@ void SysTick_Handler(void)
 void USB_IRQHandler(void)
 {
   /* USER CODE BEGIN USB_IRQn 0 */
-
+  usbmidi_irq(); //TinyUSB, neutr_src/usb_midi.c
   /* USER CODE END USB_IRQn 0 */
   //HAL_PCD_IRQHandler(&hpcd_USB_FS);
   /* USER CODE BEGIN USB_IRQn 1 */

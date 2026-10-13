@@ -131,6 +131,8 @@ void USART1_IRQHandler(void)
 		uint8_t rxbyte = USART1->RDR;
 		USART1->RQR = USART_RQR_RXFRQ;
 
+		usbmidi_din_byte(rxbyte); //copy to USB MIDI
+
 		//just wait until tx ready and put thru
 		if (!midimode)
 		{
