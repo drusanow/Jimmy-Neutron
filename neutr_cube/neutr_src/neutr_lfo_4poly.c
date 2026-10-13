@@ -580,8 +580,8 @@ void nl4p_test() // can be deleted
 	nl4p_setfrq(0,126,0);
 	nl4p_setfrq(1,126,0);
 	nl4p_setfrq(2,126,0);
+	nl4p_setfrq(3,126,0);
 	nl4p_setfrq(4,126,0);
-	nl4p_setfrq(5,126,0);
 	//if lid than a+r and detune else r only and wave
 	lforam.nl4p_detune = 0x820;
 	lforam.nl4p_attack = glinc[1];
@@ -681,7 +681,11 @@ void nl4p_noteon(uint8_t note, uint32_t ts) //it is possible to catch failure ev
 		}
 	}
 	if (ivn == 0xFF)
+	{
+		if (avn == 0xFF) //all priorities are 0xFFFFFFFF (timestamp wrap), steal voice 0
+			avn = 0;
 		nl4p_setfrq(avn, note, ts);
+	}
 	else
 		nl4p_setfrq(ivn, note, ts);
 }

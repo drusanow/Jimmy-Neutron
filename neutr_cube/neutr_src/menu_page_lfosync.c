@@ -60,11 +60,14 @@ void msk_phaseshift(uint16_t adc)
 }
 void msp_lfosync_press()
 {
-	led_blink(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE | LEDBTN_OSCSYNC | LED_FILTERBP | LED_FILTERHP | LED_FILTERLP, DEFAULT_BLINK_TIME);
+	led_blink(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE | LEDBTN_OSCSYNC | LED_FILTERBP | LED_FILTERHP | LED_FILTERLP | LEDBTN_PARAPHONIC | LEDBTN_FLTKEYTRK, DEFAULT_BLINK_TIME);
 	page = mspage_lfosync;
 	lfoledproc = msl_lfosync;
-	led_set(LEDBTN_FLTKEYTRK | LED_FILTERBP | LED_FILTERHP | LED_FILTERLP | LEDBTN_PARAPHONIC, 0);
+	led_set(LED_FILTERBP | LED_FILTERHP | LED_FILTERLP, 0);
 	led_set(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE, 1);
+	//lfo oscillator modes: PARAPHONIC lit - follows osc1, KEYTRK lit - semitone quantize
+	led_set(LEDBTN_PARAPHONIC, parameters.lfooscsrc);
+	led_set(LEDBTN_FLTKEYTRK, parameters.lfooscquant);
 	switch (parameters.lfoextsynctype)
 	{
 	case 0:
@@ -157,6 +160,22 @@ void msp_lsedge()
 	page.buttons[BTNEN_LFOSYNC_OFF] = msp_root;
 }
 
+//lfo oscillator modes: which osc to follow
+void msp_lsoscsrc()
+{
+	parameters.lfooscsrc = !parameters.lfooscsrc;
+	led_set(LEDBTN_PARAPHONIC, parameters.lfooscsrc);
+	page.buttons[BTNEN_LFOSYNC_OFF] = msp_root;
+}
+
+//lfo oscillator modes: LFO RATE offset snaps to semitones
+void msp_lsoscquant()
+{
+	parameters.lfooscquant = !parameters.lfooscquant;
+	led_set(LEDBTN_FLTKEYTRK, parameters.lfooscquant);
+	page.buttons[BTNEN_LFOSYNC_OFF] = msp_root;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 const menu_page_t mspage_lfosync =
@@ -164,10 +183,10 @@ const menu_page_t mspage_lfosync =
 		msp_lsdec,           //BTNEN_O1RANGE
 		msp_lsinc,           //BTNEN_O2RANGE
 		msp_lstempo,         //BTNEN_OSCSYNC
-		0,                   //BTNEN_PARAPH
+		msp_lsoscsrc,        //BTNEN_PARAPH
 		0,                   //BTNEN_LFOSYNC
 		msp_lsedge,          //BTNEN_FLTMODE
-		0,                   //BTNEN_FLTKEYTRK
+		msp_lsoscquant,      //BTNEN_FLTKEYTRK
 		0,                   //BTNEN_O1RANGE_OFF
 		0,                   //BTNEN_O2RANGE_OFF
 		0,                   //BTNEN_OSCSYNC_OFF

@@ -306,6 +306,11 @@ void pp_octaveo1(uint8_t octave);
 void pp_octaveo2(uint8_t octave);
 void pp_setdac(uint8_t mode);
 
+//bootloader
+void bootloader_check(void);
+void bootloader_request(void);
+//osc shape
+void osc_shape_process(uint8_t osc);
 //autotune
 void ft_o1tune(void);
 void ft_o2tune(void);

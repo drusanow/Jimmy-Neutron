@@ -109,6 +109,14 @@ typedef struct//do not save parameters from pots (i.e. glidetime or lfo freq)
 
 	volatile uint32_t validity_key;
 
+	//extension block, added after 1.5f. it has its own key, so saves from 1.5f keep their calibration
+	//osc shape drift (slow modulation of the osc shape position)
+	volatile uint16_t shpdrift_depth; //pot value 0..0xFFF, 0 = off
+	volatile uint16_t shpdrift_rate;  //pot value 0..0xFFF
+	//lfo oscillator modes (monophonic and wavetable)
+	volatile uint8_t  lfooscsrc;      //0 - follow osc2 pitch, 1 - follow osc1 pitch
+	volatile uint8_t  lfooscquant;    //1 - LFO RATE pitch offset snaps to semitones
+	volatile uint32_t ext_key;
 }parameters_t;
 
 
@@ -125,6 +133,7 @@ extern const neutr_lfo_t nl_5math;
 extern const neutr_lfo_t nl_ex_mono;
 extern const neutr_lfo_t nl_ex_classic;
 extern const neutr_lfo_t nl_8sdc;
+extern const neutr_lfo_t nl_6wavetable;
 //@TODO: place other here
 void nl_init_classic(uint8_t prevmode);
 
@@ -146,6 +155,7 @@ typedef struct
 	void (*cbk)(uint16_t val);
 }knob_status_t;
 void knob_na(uint16_t);
+void knob_hold(uint16_t);
 void knob_process(void);
 void knob_lock(knobselect_en knob, uint16_t val, uint8_t type, void (*callback)(uint16_t val)); //type 1-from noise 2-to value 0-off
 extern volatile uint16_t lfoshape;

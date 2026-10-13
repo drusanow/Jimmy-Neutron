@@ -291,6 +291,14 @@ void neutr_main(void)
 	//load default menu page and display process
 
 	ft_delay(200);
+
+	//OSC SYNC + FILTER MODE held at power on - enter USB DFU bootloader
+	if (((uint8_t)ser_input & 0x7F) == (BTN_OSCSYNC | BTN_FILTERMODE))
+	{
+		led_set(LEDS_ALL, 1);
+		ft_delay(100);
+		bootloader_request();
+	}
 	//exticalib();
 	//ft_delay(100);
 	msp_root();

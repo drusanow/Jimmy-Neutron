@@ -118,6 +118,12 @@ void knob_na(uint16_t val)
 	(void)val;
 }
 
+//like knob_na, but the knob stays assigned, so lfo shape and rate are not updated from it
+void knob_hold(uint16_t val)
+{
+	(void)val;
+}
+
 void knob_process()
 {
 	k_process[knob_status[0].lock&0x3](0,adc_val[POT_LFORATE]);

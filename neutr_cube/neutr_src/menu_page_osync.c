@@ -55,11 +55,28 @@ void msl_lfoassign(uint32_t frame)
 	}
 }
 
+//shape drift: hold OSC SYNC and turn LFO SHAPE (depth) or LFO RATE (speed)
+void msk_shpdrift_depth(uint16_t val)
+{
+	//small dead zone, so fully counterclockwise is really off
+	parameters.shpdrift_depth = val < 0x20 ? 0 : val;
+	page.buttons[BTNEN_OSCSYNC_OFF] = msp_root;
+}
+
+void msk_shpdrift_rate(uint16_t val)
+{
+	parameters.shpdrift_rate = val;
+	page.buttons[BTNEN_OSCSYNC_OFF] = msp_root;
+}
+
 void msp_osync_press()
 {
 	led_blink(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE | LEDBTN_LFOSYNC | LEDBTN_FLTKEYTRK, DEFAULT_BLINK_TIME);
 	page = mspage_osync;
 	lfoledproc = msl_lfoassign;
+	//type 1 - knob starts editing only after it is moved
+	knob_lock(KNOB_LFOSHAPE, 0, 1, msk_shpdrift_depth);
+	knob_lock(KNOB_LFORATE, 0, 1, msk_shpdrift_rate);
 	if (parameters.gateretrig)
 	{
 		led_set(LEDBTN_LFOSYNC, 1);
@@ -163,6 +180,9 @@ void msp_assignmenu()
 	//  @TODO: disable sr write to this DAC channel
 	led_blink(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE | LEDBTN_OSCSYNC, DEFAULT_BLINK_TIME);
 	page = mspage_assignmenu;
+	//detach shape drift knobs, LFO SHAPE selects octave here. lfo shape/rate stay frozen until exit
+	knob_lock(KNOB_LFOSHAPE, 0, 3, knob_hold);
+	knob_lock(KNOB_LFORATE, 0, 3, knob_hold);
 	lfoledproc = msl_assigntune;
 	led_set(LEDBTN_OSC1RANGE | LEDBTN_OSC2RANGE | LEDBTN_OSCSYNC | LED_LFO1SINE | LED_LFO2TRIANGLE | LED_LFO3RAMPDWN | LED_LFO4SQUARE | LED_LFO5RAMPUP, 1);
 	led_set(LEDBTN_PARAPHONIC | LEDBTN_FLTKEYTRK | LEDBTN_LFOSYNC , 0);

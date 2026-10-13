@@ -30,8 +30,18 @@ neutr_cube. If not, see <http://www.gnu.org/licenses/>.
 //page 57
 #define SAVEADDRESS ((uint32_t)0x0801C800)
 #define VALIDKEY 0x1337AFCD
+#define EXTKEY   0x2E7E0001
 
 volatile __aligned(4) parameters_t parameters;
+
+static void nvm_ext_defaults(void)
+{
+	parameters.shpdrift_depth = 0;
+	parameters.shpdrift_rate = 0x600;
+	parameters.lfooscsrc = 0;
+	parameters.lfooscquant = 0;
+	parameters.ext_key = EXTKEY;
+}
 
 void nvm_initialize()
 {
@@ -70,6 +80,7 @@ void nvm_initialize()
 	parameters.lfomode = 0;
 
 	parameters.validity_key = VALIDKEY;
+	nvm_ext_defaults();
 
 	if (save_parameters())
 	{
@@ -97,6 +108,11 @@ uint8_t load_parameters()
 		for (i = 0; i<sizeof(parameters_t); i++)
 		{
 			*dest_ptr++ = *flash_ptr++;
+		}
+		//saved by older firmware - keep calibration, default the new parameters
+		if (parameters.ext_key != EXTKEY)
+		{
+			nvm_ext_defaults();
 		}
 	}
 

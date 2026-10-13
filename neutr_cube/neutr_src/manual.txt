@@ -139,3 +139,24 @@ All maths developed in Gnumeric
 LFO classic and mono code is ~3000 lines after preprocessor :-P
 Basic debugging was made in Reaktor, hardcore debugging made on Axoloti (i highly recommend).
 1.5f is the final version of lfo synthesis. Next versions will add USB or other lfo modes, but now i move to other projects, so don't wait.
+
+ADDITIONS IN THIS FORK (after 1.5f, untested on hardware)
+
+OSC SHAPE
+Shape knobs are smoothed and the waveform crossfade is interpolated, so morphing is smooth and
+a knob resting between two waves does not click.
+Shape drift - slow, subtle movement of both oscillator shapes around the knob positions:
+hold OSC_SYNC and turn LFO_SHAPE for depth (fully left = off), LFO_RATE for speed.
+Turn LFO_SHAPE / LFO_RATE back to their previous positions to pick up the LFO again.
+
+LFO MODES
+7 - Wavetable oscillator (LFO SYNC page: all LFO leds lit except the second one).
+    LFO_SHAPE morphs through 8 waves, LFO_RATE is pitch offset like mode 3. KEY_SYNC switches range.
+    Band-limited. LFO sync input hard-syncs the wave, edge as set with FILTER_MODE.
+Modes 3 and 7 (oscillators), hold LFO_SYNC and press...
+- PARAPHONIC to follow OSC1 pitch instead of OSC2 (led lit = OSC1)
+- FLT_KEYTRACK to snap LFO_RATE pitch offset to semitones (led lit = on)
+
+BOOTLOADER
+Hold OSC_SYNC + FILTER_MODE while powering on: all leds light up and the Neutron enters the
+STM32 USB DFU bootloader. Flash any firmware, or power cycle to leave.

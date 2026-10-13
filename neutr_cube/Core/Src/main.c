@@ -82,6 +82,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  bootloader_check(); //jumps to the ROM DFU bootloader if it was requested before reset
 
   /* USER CODE END 1 */
 

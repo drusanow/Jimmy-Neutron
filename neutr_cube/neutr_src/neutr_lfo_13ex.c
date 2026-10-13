@@ -133,7 +133,7 @@ void lfo_process_sr_edge_process() //this function is just a copy.
 	lforam.phaseacc += inc;                                                                                             \
 	uint32_t pp = lforam.phaseacc + lforam.phaseshift;
 #define CODEBLOCK_START_NS                                                                                              \
-	int32_t pitch = lforate*(3+7*parameters.lfokeysync) + lforam.nl3m_pitch;                                            \
+	int32_t pitch = LFOOSC_RATEPITCH + lforam.nl3m_pitch;                                                               \
 	if (pitch<0)                                                                                                        \
 		pitch = 0;                                                                                                      \
 	else                                                                                                                \
@@ -930,7 +930,7 @@ extern volatile uint32_t pp_o2p;
 extern volatile int32_t pp_o2pwshift;
 void nlex_cr()
 {
-	lforam.nl3m_pitch = (pp_o2p>>15) + pp_o2pwshift - (0x1800 + 0x3800*parameters.lfokeysync);
+	lfoosc_cr_pitch();
 }
 
 void nlex_leds(uint32_t frame)

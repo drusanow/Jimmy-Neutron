@@ -266,12 +266,18 @@ void nl1c_leds(uint32_t frame)
 	{
 		uint8_t lfo_shape[5] = {0,0,0,0,0};
 
-		for (i = lforam.shape_min>>10; i < lforam.shape_max>>10; i++)
+		//shape_min is 0xFFFF and shape_max 0 right after reset - keep indexes inside the array
+		uint8_t smin = lforam.shape_min>>10;
+		uint8_t smax = lforam.shape_max>>10;
+		if (smax > 3)
+			smax = 3;
+		for (i = smin; i < smax; i++)
 		{
 			lfo_shape[i+1] = 1;
 		}
-		lfo_shape[lforam.shape_min>>10] = (0x3FF - (lforam.shape_min & 0x3FF))>>2;
-		lfo_shape[(lforam.shape_max>>10) + 1] = (lforam.shape_max & 0x3FF)>>2;
+		if (smin < 5)
+			lfo_shape[smin] = (0x3FF - (lforam.shape_min & 0x3FF))>>2;
+		lfo_shape[smax + 1] = (lforam.shape_max & 0x3FF)>>2;
 
 		//set lfo leds
 		for(i = 0; i < 5; i++)

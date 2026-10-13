@@ -33,7 +33,7 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20004000;    /* end of RAM */
+_estack = 0x20003FF8;    /* end of RAM, minus 8 bytes for the bootloader request (bootloader.c) */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x10;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -41,8 +41,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 16K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K
+RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 16K - 8
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 114K /* 0x0801C800 and up: saved parameters (nvm.c) */
 }
 
 /* Define output sections */

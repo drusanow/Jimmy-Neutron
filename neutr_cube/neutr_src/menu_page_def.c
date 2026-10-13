@@ -69,7 +69,7 @@ const neutr_lfo_t *const nlfo[16] =
 		&nl_5math,      //4 -
 		//inverted leds
 		&nl_1classic,  //5 -
-		&nl0_boot,//&nl_8sdc,      //6 -
+		&nl_6wavetable, //6 - wavetable oscillator
 		&nl0_boot,      //7 -
 		&nl0_boot,      //8 -
 		&nl0_boot,      //9 -

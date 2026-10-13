@@ -115,6 +115,11 @@ typedef union
 		uint32_t wsave_two;
 		uint32_t prevphase;
 		int32_t nl3m_pitch;
+		int32_t nl3m_qsemi;  //quantized LFO RATE offset, semitones
+		int32_t nl3m_qoff;   //same in lforate*mult units, used instead of lforate when quantized
+
+		//6 - wavetable (also uses phaseacc, irqstate and the nl3m pitch fields)
+		int32_t nlwt_morph;  //smoothed morph position, wave index <<12
 		uint32_t nl3m_divr;
 
 
@@ -149,6 +154,9 @@ typedef union
 
 
 void nl4p_panic(void);
+void lfoosc_cr_pitch(void);
+//LFO RATE part of the lfo oscillator pitch
+#define LFOOSC_RATEPITCH (parameters.lfooscquant ? lforam.nl3m_qoff : (int32_t)lforate*(3+7*parameters.lfokeysync))
 void nl_init_classic(uint8_t prevmode);
 extern volatile lforam_t lforam;
 extern volatile uint32_t exti_timcomp;

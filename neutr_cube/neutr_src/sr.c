@@ -91,13 +91,11 @@ void TIM6_DAC_IRQHandler() //our main SR()
 	dac_output[CV_OSC2WAVE] = ~sine[(adc_val[POT_OSC2SHAPE]>>3)&0xFF];
 */
 
-	uint32_t p_o1shp = (adc_input[POT_OSC1SHAPE] * ADC_SCALER) >> 19;
-	OSCWAVEPORT = o1w[p_o1shp>>7]; //this must be made only when dac output active?
-	dac_output[CV_OSC1WAVE] = ~sine[(p_o1shp)&0xFF];
-
-	uint32_t p_o2shp = (adc_input[POT_OSC2SHAPE] * ADC_SCALER) >> 19;
-	OSCWAVEPORT = o2w[p_o2shp>>7]; //this must be made only when dac output active?
-	dac_output[CV_OSC2WAVE] = ~sine[(p_o2shp)&0xFF];
+	//osc shapes (osc_shape.c) - each one at 6 kHz, one tick before its dac slot
+	if ((timestamp & 0x7) == (CV_OSC1WAVE - 1))
+		osc_shape_process(0);
+	else if ((timestamp & 0x7) == (CV_OSC2WAVE - 1))
+		osc_shape_process(1);
 
 
 
