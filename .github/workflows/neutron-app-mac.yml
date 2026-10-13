@@ -1,0 +1,36 @@
+# Builds the standalone Mac app (Apple Silicon + Intel universal) and attaches it to the run
+# as "NeutronEditor-mac". Download it from the workflow run's Artifacts section.
+name: Neutron Editor Mac app
+
+on:
+  push:
+    paths: ['neutron-app/**', '.github/workflows/neutron-app-mac.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build
+        working-directory: neutron-app/electron
+        run: |
+          npm ci
+          npm run mac
+      - name: Sign (ad hoc) and zip
+        working-directory: neutron-app/electron/dist
+        run: |
+          APP="Neutron Editor-darwin-universal/Neutron Editor.app"
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict "$APP"
+          ditto -c -k --keepParent "$APP" NeutronEditor-mac.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NeutronEditor-mac
+          path: neutron-app/electron/dist/NeutronEditor-mac.zip

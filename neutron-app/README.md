@@ -29,8 +29,10 @@ Firefox do not support WebUSB, and Safari has no Web MIDI.
 *Install page as app* (or the install icon in the address bar). It then lives in Applications,
 opens in its own window and works offline.
 
-**Standalone Mac app (Electron):** download `NeutronEditor-mac-arm64.zip` (Apple Silicon) or
-`NeutronEditor-mac-x64.zip` (Intel), unzip and move *Neutron Editor* to Applications. The app is
+**Standalone Mac app (Electron):** GitHub builds it on every change to `neutron-app/`
+(workflow *Neutron Editor Mac app*): open the latest run under the repository's **Actions** tab and
+download **NeutronEditor-mac** from *Artifacts*. It runs on Apple Silicon and Intel Macs. Unzip it
+and move *Neutron Editor* to Applications. The app is
 not notarised by Apple, so the first time macOS refuses to open it: open *System Settings →
 Privacy & Security* and click **Open Anyway** (or run `xattr -dr com.apple.quarantine "/Applications/Neutron Editor.app"`).
 To build it yourself: `cd electron && npm install && npm run mac` (on a Mac).
