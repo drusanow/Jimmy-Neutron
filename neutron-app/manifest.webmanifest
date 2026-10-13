@@ -1,0 +1,15 @@
+{
+  "name": "Neutron Editor",
+  "short_name": "Neutron",
+  "description": "Settings, oscillator tuning and firmware updates for the Behringer Neutron running neutr_cube firmware",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121417",
+  "theme_color": "#16181b",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -312,6 +312,10 @@ void usbmidi_irq(void);
 void usbmidi_poll(void);
 void usbmidi_task(void);
 void usbmidi_din_byte(uint8_t b);
+void usbmidi_send(const uint8_t* b, uint16_t len);
+//editor sysex
+void sysex_rx(const uint8_t* b, uint8_t n);
+void sysex_task(void);
 //bootloader
 void bootloader_check(void);
 void bootloader_request(void);

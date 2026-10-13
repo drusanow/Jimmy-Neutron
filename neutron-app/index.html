@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neutron Editor</title>
+  <meta name="description" content="Settings, oscillator tuning and firmware updates for the Behringer Neutron running neutr_cube firmware">
+  <meta name="theme-color" content="#16181b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><use href="icons/icon.svg#mark"/></svg>
+      <div>
+        <h1>Neutron Editor</h1>
+        <p class="sub">for the neutr_cube firmware</p>
+      </div>
+    </div>
+    <div class="conn">
+      <span id="status" class="pill" data-state="off"><span class="dot"></span><span id="status-text">Not connected</span></span>
+      <select id="port" aria-label="MIDI port" hidden></select>
+      <button id="connect" class="btn">Connect</button>
+    </div>
+  </header>
+
+  <div id="support" class="banner" hidden></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-settings" aria-controls="page-settings" aria-selected="true">Settings</button>
+    <button role="tab" id="tab-tuning" aria-controls="page-tuning" aria-selected="false">Tuning</button>
+    <button role="tab" id="tab-firmware" aria-controls="page-firmware" aria-selected="false">Firmware</button>
+  </nav>
+
+  <div id="savebar" class="savebar" hidden>
+    <span id="info-line" class="muted"></span>
+    <span class="spacer"></span>
+    <span id="dirty" class="dirty" hidden>Unsaved changes</span>
+    <button id="reload" class="btn ghost">Reload from synth</button>
+    <button id="save" class="btn primary">Save to Neutron</button>
+  </div>
+
+  <main>
+    <section id="page-settings" role="tabpanel" aria-labelledby="tab-settings">
+      <div id="settings-empty" class="empty">
+        <h2>Connect your Neutron</h2>
+        <p>Plug the Neutron into this computer with USB and press <b>Connect</b>. The browser asks for permission to use MIDI devices with system exclusive messages, allow it.</p>
+        <p class="muted">Settings need the neutr_cube firmware on the Neutron. With Behringer's firmware, use the Firmware tab to install it.</p>
+      </div>
+      <div id="settings-grid" class="grid" hidden></div>
+      <div id="settings-footer" class="footer-actions" hidden>
+        <button id="defaults" class="btn danger">Reset all settings to defaults…</button>
+      </div>
+    </section>
+
+    <section id="page-tuning" role="tabpanel" aria-labelledby="tab-tuning" hidden>
+      <div class="grid">
+        <article class="card">
+          <h3>Automatic tuning</h3>
+          <p class="muted">The Neutron measures its oscillators and calculates the calibration. Let it warm up for 30 minutes first, and do not play while it runs (a few seconds per oscillator). You will hear it.</p>
+          <div class="row-buttons">
+            <button class="btn" data-autotune="1">Tune OSC 1</button>
+            <button class="btn" data-autotune="2">Tune OSC 2</button>
+            <button class="btn primary" data-autotune="3">Tune both</button>
+          </div>
+          <p id="autotune-status" class="status-line" role="status"></p>
+        </article>
+
+        <article class="card">
+          <h3>Tuner</h3>
+          <p class="muted">Listens through the computer's microphone (or an audio input connected to the Neutron's output).</p>
+          <div class="tuner" id="tuner">
+            <div class="tuner-note" id="tuner-note">–</div>
+            <div class="tuner-meter" aria-hidden="true">
+              <div class="tuner-scale"></div>
+              <div class="tuner-needle" id="tuner-needle"></div>
+            </div>
+            <div class="tuner-read"><span id="tuner-cents">– cents</span><span id="tuner-hz">– Hz</span></div>
+          </div>
+          <div class="row-buttons">
+            <button class="btn" id="tuner-toggle">Start tuner</button>
+            <label class="inline-label">A4 = <input id="tuner-ref" type="number" min="415" max="466" step="0.5" value="440"> Hz</label>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Test notes</h3>
+          <p class="muted">Click a note to start it, click again to stop. Notes go out on the Neutron's MIDI channel.</p>
+          <div class="notes" id="test-notes"></div>
+          <button class="btn ghost small" id="notes-off">All notes off</button>
+        </article>
+
+        <article class="card wide">
+          <h3>Manual calibration</h3>
+          <ol class="steps">
+            <li><b>Note scale.</b> Play C2 and C5. Change <i>Note DAC scale</i> until both are equally in tune.</li>
+            <li><b>Octave scale.</b> Hold a note and switch <i>Range</i>. Change <i>Octave DAC scale</i> until the octaves are clean.</li>
+            <li><b>Pitch offset.</b> Play A4. Change <i>Pitch offset</i> until the tuner shows 0 cents.</li>
+          </ol>
+          <p class="muted">Changes are heard immediately. Press <b>Save to Neutron</b> to keep them.</p>
+          <div class="cal-grid" id="cal-grid"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="page-firmware" role="tabpanel" aria-labelledby="tab-firmware" hidden>
+      <div class="grid">
+        <article class="card wide">
+          <h3>Update or restore firmware</h3>
+          <p class="muted">The Neutron's chip has a USB bootloader built into ROM. It can not be erased, so a failed update can always be repeated. Installing neutr_cube keeps your saved settings and calibration. Installing a full 128 kB image (such as Behringer's) replaces them, recalibrate afterwards.</p>
+          <p id="usb-support" class="warn" hidden></p>
+        </article>
+
+        <article class="card">
+          <h3><span class="stepnum">1</span> Choose firmware</h3>
+          <label class="radio"><input type="radio" name="fwsrc" value="bundled" checked> <span>neutr_cube <span id="bundled-version">(latest)</span></span></label>
+          <label class="radio"><input type="radio" name="fwsrc" value="file"> <span>A file (.dfu, .bin or .hex)</span></label>
+          <input type="file" id="fw-file" accept=".dfu,.bin,.hex" hidden>
+          <p id="fw-summary" class="status-line"></p>
+        </article>
+
+        <article class="card">
+          <h3><span class="stepnum">2</span> Start the bootloader</h3>
+          <p>With neutr_cube installed and connected: <button class="btn small" id="enter-bootloader" disabled>Restart into bootloader</button></p>
+          <p class="muted">Otherwise switch the Neutron off, hold <b>OSC SYNC + FILTER MODE</b> (neutr_cube) or the <b>BOOT</b> button on the back (any firmware) and switch it on. All LEDs light up with neutr_cube; with the BOOT button the panel may stay dark.</p>
+        </article>
+
+        <article class="card">
+          <h3><span class="stepnum">3</span> Flash</h3>
+          <div class="row-buttons">
+            <button class="btn" id="dfu-connect">Connect to bootloader</button>
+            <button class="btn ghost" id="dfu-backup" disabled>Back up current firmware</button>
+          </div>
+          <div class="row-buttons">
+            <button class="btn primary" id="dfu-flash" disabled>Install firmware</button>
+            <button class="btn ghost" id="dfu-leave" disabled>Restart Neutron</button>
+          </div>
+          <div class="progress" id="dfu-progress" hidden><div class="bar"></div><span class="label"></span></div>
+        </article>
+
+        <article class="card wide">
+          <h3>Log</h3>
+          <pre id="log" class="log" aria-live="polite"></pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="confirm">
+    <form method="dialog">
+      <h3 id="confirm-title"></h3>
+      <p id="confirm-text"></p>
+      <div class="row-buttons end">
+        <button value="cancel" class="btn ghost">Cancel</button>
+        <button value="ok" class="btn danger" id="confirm-ok">OK</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

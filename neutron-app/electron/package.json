@@ -1,0 +1,18 @@
+{
+  "name": "neutron-editor",
+  "productName": "Neutron Editor",
+  "version": "1.6.0",
+  "description": "Settings, tuning and firmware updates for the Behringer Neutron running neutr_cube",
+  "main": "main.cjs",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "scripts": {
+    "copy-web": "node copy-web.cjs",
+    "start": "npm run copy-web && electron .",
+    "mac": "npm run copy-web && electron-packager . \"Neutron Editor\" --platform=darwin --arch=universal --icon=icon.icns --out=dist --overwrite --app-bundle-id=org.neutrcube.editor --ignore=^/dist"
+  },
+  "devDependencies": {
+    "@electron/packager": "18.3.6",
+    "electron": "33.4.11"
+  }
+}

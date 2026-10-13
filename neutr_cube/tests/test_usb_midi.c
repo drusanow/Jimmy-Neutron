@@ -49,6 +49,11 @@ bool tud_init(uint8_t rhport) { (void)rhport; return true; }
 void tud_task_ext(uint32_t t, bool i) { (void)t; (void)i; }
 void dcd_int_handler(uint8_t rhport) { (void)rhport; }
 bool tud_inited(void) { return true; }
+uint32_t tud_midi_n_stream_write(uint8_t itf, uint8_t cable, uint8_t const* b, uint32_t n) { (void)itf; (void)cable; (void)b; return n; }
+/* editor sysex is tested end to end with sim_sysex_device and neutron-app/tests */
+static int sysex_bytes;
+void sysex_rx(const uint8_t* b, uint8_t n) { (void)b; sysex_bytes += n; }
+void sysex_task(void) {}
 
 void usbmidi_task(void);
 void usbmidi_din_byte(uint8_t b);
@@ -107,6 +112,7 @@ int main(void)
 	CHECK(strcmp(log_buf, expect) == 0, "usb->synth got '%s'", log_buf);
 	CHECK(pp_modwheel == (0x40 << 7), "mod wheel %x", pp_modwheel);
 	CHECK(pp_aftertouch == 77, "aftertouch %d", pp_aftertouch);
+	CHECK(sysex_bytes == 3, "sysex bytes passed on: %d", sysex_bytes);
 	CHECK(masked_during_call == ((1u << USART1_IRQn) | (1u << TIM7_IRQn)), "masked irqs %x", masked_during_call);
 	CHECK(host_nvic.ISER[0] == ((1u << USART1_IRQn) | (1u << TIM7_IRQn)), "irqs not restored");
 	printf("usb->synth: %s\n", log_buf);

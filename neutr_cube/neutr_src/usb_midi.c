@@ -214,7 +214,13 @@ static void usbmidi_dispatch(const uint8_t p[4])
 			midistart();
 		return;
 	}
-	if ((cin < 0x08) || ((st & 0x0F) != midi_channel_switch)) //sysex, system common, other channels
+	if ((cin >= 0x04) && (cin <= 0x07)) //sysex start/continue (3 bytes), end with 1, 2 or 3 bytes
+	{
+		static const uint8_t sxlen[4] = {3, 1, 2, 3};
+		sysex_rx(p + 1, sxlen[cin - 4]);
+		return;
+	}
+	if ((cin < 0x08) || ((st & 0x0F) != midi_channel_switch)) //system common, other channels
 		return;
 
 	note_t note;
@@ -277,6 +283,25 @@ void usbmidi_irq(void)
 	tud_int_handler(0);
 }
 
+//blocking send of a byte stream (sysex replies), gives up if the host stops reading
+void usbmidi_send(const uint8_t* b, uint16_t len)
+{
+	uint32_t idle = 0;
+	while (len && tud_midi_mounted() && (idle < 20000))
+	{
+		uint32_t n = tud_midi_stream_write(0, b, len);
+		b += n;
+		len -= n;
+		if (n)
+			idle = 0;
+		else
+		{
+			idle++;
+			tud_task();
+		}
+	}
+}
+
 //keeps the USB connection alive, safe to call from busy waits in the main context
 void usbmidi_poll(void)
 {
@@ -299,6 +324,8 @@ void usbmidi_task(void)
 		usbmidi_dispatch(p);
 		NVIC->ISER[0] = enabled;
 	}
+
+	sysex_task(); //editor commands, may take a while (autotune)
 
 	while (din2usb_r != din2usb_w)
 	{

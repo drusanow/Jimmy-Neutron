@@ -95,10 +95,21 @@ $(BUILD)/$(TARGET).bin: $(BUILD)/$(TARGET).elf
 $(BUILD)/$(TARGET).dfu: $(BUILD)/$(TARGET).bin tools/bin2dfu.py
 	$(PYTHON) tools/bin2dfu.py $< $@
 
+# copy the build into the editor app (neutron-app/firmware), so it can install it
+APP_FW = ../neutron-app/firmware
+FW_VERSION = $(shell sed -n 's/^#define SX_FW_VERSION "\(.*\)"/\1/p' neutr_src/sysex.c)
+
+app-firmware: $(BUILD)/$(TARGET).bin
+	@mkdir -p $(APP_FW)
+	cp $< $(APP_FW)/neutr_cube.bin
+	printf '{\n  "version": "%s",\n  "file": "neutr_cube.bin",\n  "size": %d,\n  "sha256": "%s"\n}\n' \
+		"$(FW_VERSION)" $$(stat -c %s $<) $$(sha256sum $< | cut -d' ' -f1) > $(APP_FW)/firmware.json
+	cat $(APP_FW)/firmware.json
+
 clean:
 	rm -rf $(BUILD)
 
-.PHONY: all clean
+.PHONY: all clean app-firmware
 
 -include $(OBJS:.o=.d)
 
@@ -123,7 +134,12 @@ $(BUILD)/test/test_usb_midi: tests/test_usb_midi.c neutr_src/usb_midi.c
 	@mkdir -p $(dir $@)
 	$(HOSTCC) $(TEST_FLAGS) -I$(TUSB) -o $@ $^
 
-test: $(BUILD)/test/test_osc_shape $(BUILD)/test/test_lfo_osc_pitch $(BUILD)/test/test_wavetable $(BUILD)/test/test_usb_midi
+#simulated Neutron (real usb_midi.c + sysex.c) for the editor app tests
+$(BUILD)/test/sim_sysex_device: tests/sim_sysex_device.c neutr_src/usb_midi.c neutr_src/sysex.c
+	@mkdir -p $(dir $@)
+	$(HOSTCC) $(TEST_FLAGS) -I$(TUSB) -o $@ $^
+
+test: $(BUILD)/test/sim_sysex_device $(BUILD)/test/test_osc_shape $(BUILD)/test/test_lfo_osc_pitch $(BUILD)/test/test_wavetable $(BUILD)/test/test_usb_midi
 	$(BUILD)/test/test_usb_midi
 	$(BUILD)/test/test_osc_shape
 	$(BUILD)/test/test_lfo_osc_pitch

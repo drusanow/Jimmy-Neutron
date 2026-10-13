@@ -41,14 +41,22 @@ Back up your current firmware first (see *Returning to the original firmware*).
 The new settings are saved with the usual PARAPHONIC + OSC SYNC. Settings saved by 1.5f
 are kept (calibration is not lost); the new options start at their defaults.
 
-USB MIDI does not speak Behringer's SysEx protocol, so the SynthTool / Neutron app can not
-edit this firmware's settings. It uses the pid.codes test USB ID (1209:0001) rather than
+USB MIDI does not speak Behringer's SysEx protocol, so Behringer's SynthTool / Neutron app can not
+edit this firmware's settings – use the Neutron Editor below instead (its protocol is in
+`neutr_cube/neutr_src/sysex.c`). It uses the pid.codes test USB ID (1209:0001) rather than
 Behringer's. The USB stack is [TinyUSB](https://github.com/hathach/tinyusb) 0.17.0 (MIT),
 vendored in `neutr_cube/Middlewares/tinyusb`.
 
 Fixed along the way: poly LFO initialised a 6th voice that does not exist (memory
 corruption), poly voice stealing could index past the voice array, and the old classic
 LFO led code could write outside its buffer.
+
+### Neutron Editor (computer app)
+
+[`neutron-app/`](neutron-app/README.md) is an editor for all of this firmware's settings, with
+automatic and manual oscillator tuning (including a microphone tuner) and a firmware updater that
+can also restore Behringer's firmware. It runs in Chrome / Edge / Opera over USB MIDI and WebUSB,
+installs as a Mac app from Chrome, and is also available as a standalone Mac app.
 
 ### Building
 

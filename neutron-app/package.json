@@ -1,0 +1,12 @@
+{
+  "name": "neutron-app",
+  "version": "1.6.0",
+  "description": "Editor, tuner and firmware updater for the Behringer Neutron running the neutr_cube firmware",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "serve": "node tools/serve.mjs"
+  }
+}
